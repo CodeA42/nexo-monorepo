@@ -1,0 +1,33 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es2020", "dom", "ES2022.Error"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nexo-monorepo/api": ["libs/api/src/index.ts"],
+      "@nexo-monorepo/json-api-standard-api": [
+        "libs/json-api-standard/api/src/index.ts"
+      ],
+      "@nexo-monorepo/json-api-standard-shared": [
+        "libs/json-api-standard/shared/src/index.ts"
+      ],
+      "@nexo-monorepo/nexo-transaction-watcher-api": [
+        "libs/nexo/transaction-watcher/api/src/index.ts"
+      ],
+      "@nexo-monorepo/shared": ["libs/shared/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

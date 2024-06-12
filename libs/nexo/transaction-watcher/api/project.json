@@ -1,0 +1,26 @@
+{
+  "name": "nexo-transaction-watcher-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/nexo/transaction-watcher/api/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write \"./libs/nexo/transaction-watcher/api/src/**/*.ts\" \"./libs/nexo/transaction-watcher/api/src/**/*.ts\""
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/nexo/transaction-watcher/api/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  nexo-transaction-watcher-postgres:
+    image: postgres:15.4-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=nexopass
+      - POSTGRES_DB=nexo-db
+      - PGDATA=./postgres
+    volumes:
+      - ./postgres/initdb.d:/docker-entrypoint-initdb.d/
+      - db_data:/postgres:cached
+
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - '${PG_ADMIN_PORT-5050}:80'
+    restart: always
+    volumes:
+      - pgadmin:/root/.pgadmin
+    logging:
+      driver: none
+
+volumes:
+  db_data:
+  pgadmin:
