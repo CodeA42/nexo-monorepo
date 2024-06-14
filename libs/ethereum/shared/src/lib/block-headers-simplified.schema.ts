@@ -1,3 +1,4 @@
+import { BigIntFromString } from '@nexo-monorepo/shared';
 import { z } from 'nestjs-zod/z';
 
 export const validChainsSchema = z.union([
@@ -40,12 +41,12 @@ export type ValidHardFork = z.infer<typeof validHardForkSchema>;
 
 export const transactionSchema = z.object({
   blockHash: z.string().optional(),
-  blockNumber: z.bigint().optional(),
+  blockNumber: BigIntFromString.optional(),
   from: z.string().optional(),
   hash: z.string().optional(),
   transactionIndex: z.string().optional(),
   to: z.string().optional(),
-  value: z.bigint().optional(),
+  value: BigIntFromString.optional(),
   accessList: z
     .object({
       address: z.string().optional(),
@@ -57,28 +58,28 @@ export const transactionSchema = z.object({
     .object({
       customChain: z.object({
         name: z.string().optional(),
-        networkId: z.bigint(),
-        chainId: z.bigint(),
+        networkId: BigIntFromString,
+        chainId: BigIntFromString,
       }),
       baseChain: validChainsSchema.optional(),
       hardfork: validHardForkSchema.optional(),
     })
     .optional(),
-  gas: z.bigint().optional(),
-  gasPrice: z.bigint().optional(),
-  type: z.bigint().optional(),
-  maxFeePerGas: z.bigint().optional(),
-  maxPriorityFeePerGas: z.bigint().optional(),
+  gas: BigIntFromString.optional(),
+  gasPrice: BigIntFromString.optional(),
+  type: BigIntFromString.optional(),
+  maxFeePerGas: BigIntFromString.optional(),
+  maxPriorityFeePerGas: BigIntFromString.optional(),
   data: z.string().optional(),
   input: z.string().optional(),
-  nonce: z.bigint().optional(),
+  nonce: BigIntFromString.optional(),
   chain: z.number().optional(),
   hardfork: validHardForkSchema.optional(),
-  chainId: z.bigint().optional(),
+  chainId: BigIntFromString.optional(),
   networkId: z.number().optional(),
-  gasLimit: z.bigint().optional(),
+  gasLimit: BigIntFromString.optional(),
   yParity: z.number().optional(),
-  v: z.bigint().optional(),
+  v: BigIntFromString.optional(),
   r: z.string().optional(),
   s: z.string().optional(),
 });
@@ -87,17 +88,17 @@ export type Transaction = z.infer<typeof transactionSchema>;
 
 export const withdrawalSchema = z.object({
   address: z.string().optional(),
-  amount: z.bigint().optional(),
-  index: z.bigint().optional(),
-  validatorIndex: z.bigint().optional(),
+  amount: BigIntFromString.optional(),
+  index: BigIntFromString.optional(),
+  validatorIndex: BigIntFromString.optional(),
 });
 
 export type Withdrawal = z.infer<typeof withdrawalSchema>;
 
 export const blockHeadersSimplifiedSchema = z.object({
   parentBeaconBlockRoot: z.string().optional(),
-  blobGasUsed: z.bigint().optional(),
-  excessBlobGas: z.bigint(),
+  blobGasUsed: BigIntFromString.optional(),
+  excessBlobGas: BigIntFromString.optional(),
   parentHash: z.string().optional(),
   sha3Uncles: z.string().optional(),
   miner: z.string().optional(),
@@ -105,23 +106,23 @@ export const blockHeadersSimplifiedSchema = z.object({
   transactionsRoot: z.string().optional(),
   receiptsRoot: z.string().optional(),
   logsBloom: z.string().optional(),
-  difficulty: z.bigint(),
-  number: z.bigint(),
-  gasLimit: z.bigint(),
-  gasUsed: z.bigint(),
-  timestamp: z.bigint(),
+  difficulty: BigIntFromString.optional(),
+  number: BigIntFromString.optional(),
+  gasLimit: BigIntFromString.optional(),
+  gasUsed: BigIntFromString.optional(),
+  timestamp: BigIntFromString.optional(),
   extraData: z.string().optional(),
   mixHash: z.string().optional(),
-  nonce: z.bigint().optional(),
-  totalDifficulty: z.bigint().optional(),
-  baseFeePerGas: z.bigint().optional(),
-  size: z.bigint().optional(),
+  nonce: BigIntFromString.optional(),
+  totalDifficulty: BigIntFromString.optional(),
+  baseFeePerGas: BigIntFromString.optional(),
+  size: BigIntFromString.optional(),
   transactions: z
     .union([z.string().array(), transactionSchema.array()])
     .optional(),
   uncles: z.string().array().optional(),
   hash: z.string().optional(),
-  withdrawals: withdrawalSchema.array(),
+  withdrawals: withdrawalSchema.array().optional(),
   withdrawalsRoot: z.string().optional(),
 });
 

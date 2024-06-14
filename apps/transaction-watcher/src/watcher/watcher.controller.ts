@@ -1,17 +1,29 @@
-import { Controller, Put, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Post, Query, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { BlockHeadersSimplifiedDto } from '@nexo-monorepo/ethereum-api';
 import { WatcherService } from './watcher.service';
+import { IdDto } from '@nexo-monorepo/api';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @ApiTags('Watcher')
 @Controller('watcher')
 @UsePipes()
-export class EntitlementController {
+@UsePipes(ZodValidationPipe)
+export class WatcherController {
   constructor(private readonly watcherService: WatcherService) {}
 
-  @Put('/update-filters')
-  @ApiOperation({ summary: 'Returns ok when the filters are updated' })
+  @Post('/filter')
+  @ApiOperation({ summary: 'Returns the created filter' })
+  @ApiResponse({ status: 201 })
+  async newFilter(@Body() newFilter: BlockHeadersSimplifiedDto): Promise<string> {
+    return await this.watcherService.newFilter(newFilter);
+  }
+
+  @Delete('/filter')
+  @ApiOperation({ summary: 'Deletes a filter' })
   @ApiResponse({ status: 200 })
-  updateFilters(): Promise<void> {
-    return this.watcherService.updateFilters();
+  @HttpCode(200)
+  deleteFilter(@Query() query: IdDto): Promise<void> {
+    return this.watcherService.deleteFilter(query.id);
   }
 }
