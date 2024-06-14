@@ -1,6 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { transactionSchema } from '@nexo-monorepo/ethereum-shared';
-import { isValidZodSchema } from '@nexo-monorepo/shared';
 import * as mongoose from 'mongoose';
 import { Withdrawal, WithdrawalSchema } from './withdrawal.schema';
 
