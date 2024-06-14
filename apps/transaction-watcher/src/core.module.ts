@@ -8,8 +8,8 @@ import {
   validate,
 } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import { ZodValidationExceptionFilter } from '@nexo-monorepo/json-api-standard-api';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import path from 'path';
+import { WatcherModule } from './watcher/watcher.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createCoreModule(getEnv: () => unknown) {
@@ -20,28 +20,15 @@ export function createCoreModule(getEnv: () => unknown) {
         load: [getEnv as ConfigFactory],
         validate: validate,
       }),
-      TypeOrmModule.forRootAsync({
+      HttpModule,
+      WatcherModule,
+      MongooseModule.forRootAsync({
         inject: [ConfigService],
         imports: [ConfigModule],
         useFactory: (configService: ConfigService<NexoTransactionWatcherConfiguration>) => ({
-          type: 'postgres',
-          database: configService.get('DATABASE_NAME'),
-          host: configService.get('DATABASE_HOST'),
-          port: configService.get('DATABASE_PORT'),
-          username: configService.get('DATABASE_USERNAME'),
-          password: configService.get('DATABASE_PASSWORD'),
-          ssl: configService.get('DATABASE_SSL'),
-          keepConnectionAlive: true,
-          // if you want to run the migrations locally, please use npx nx migration:run transaction-watcher
-          migrations: [path.join(__dirname, 'migrations/*.js')],
-          // if you want to run the migrations locally, please use npx nx migration:run transaction-watcher
-          migrationsRun: configService.get('DATABASE_MIGRATION_RUN') || false,
-          synchronize: false,
-          autoLoadEntities: true,
-          logging: configService.get('DATABASE_LOGGING') || false,
+          uri: configService.get('MONGOOSE_URL'),
         }),
       }),
-      HttpModule,
     ],
     providers: [
       {

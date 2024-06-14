@@ -7,18 +7,14 @@ import supertest from 'supertest';
 import { ConfigModule } from '@nestjs/config';
 import { configureApp } from '../../src/core/configureApp';
 
-import { dataSource } from '../../dataSource';
 import { createAppModule } from '../../src/app.module';
 import { NexoTransactionWatcherConfiguration, validate } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import { SetupServer } from 'msw/node';
 import { setupMswServer } from '@nexo-monorepo/api';
-import { DataSource } from 'typeorm';
-import { loadFixtures } from './loadFixtures';
 
 export type SuperTestRequest = () => supertest.SuperTest<supertest.Test>;
 interface CallbackParams {
   app: SuperTestRequest;
-  dbConnection: DataSource;
   nestApp: INestApplication;
   httpServiceMock: MockProxy<HttpService> | HttpService;
   mswServer: SetupServer;
@@ -102,20 +98,7 @@ export const setupApp = async (
   // this needs to happen before initializing the app
   await setupEnvVariables(env);
 
-  await dataSource.initialize();
-
-  if (mockSettings.fixturesPath) {
-    await loadFixtures({ dataSource, synchronize: true, fixturesPath: mockSettings.fixturesPath })
-      .then(() => dataSource.destroy())
-      .catch((error) => {
-        dataSource.destroy();
-        throw error;
-      });
-  }
-
   const { nestApp, ...mocks } = await initNestApp(mockSettings);
-
-  const nestAppConnection = nestApp.get(DataSource);
 
   const mswServer = setupMswServer();
   try {
@@ -125,7 +108,6 @@ export const setupApp = async (
     // start test case and wait for it to finish
     await callback({
       app: supertestWithConfig,
-      dbConnection: nestAppConnection,
       nestApp,
       ...mocks,
       mswServer,

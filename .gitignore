@@ -16,6 +16,7 @@ node_modules
 
 postgres/data
 .env
+.env.local
 
 
 src/metadata.ts
