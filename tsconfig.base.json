@@ -28,7 +28,8 @@
       ],
       "@nexo-monorepo/shared": ["libs/shared/src/index.ts"],
       "@nexo-monorepo/infura-shared": ["libs/infura/shared/src/index.ts"],
-      "@nexo-monorepo/ethereum-shared": ["libs/ethereum/shared/src/index.ts"]
+      "@nexo-monorepo/ethereum-shared": ["libs/ethereum/shared/src/index.ts"],
+      "@nexo-monorepo/ethereum-api": ["libs/ethereum/api/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
