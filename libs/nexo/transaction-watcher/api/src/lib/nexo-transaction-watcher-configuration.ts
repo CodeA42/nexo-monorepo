@@ -2,7 +2,6 @@ import { transformToBooleanSchema } from '@nexo-monorepo/shared';
 import * as z from 'zod';
 
 const logLevelSchema = z.enum(['error', 'warn', 'info', 'debug']);
-4;
 
 export const environmentSchema = z.enum(['development', 'test']);
 
@@ -11,7 +10,7 @@ const nexoTransactionWatcherConfigurationSchema = z.object({
   DD_LOG_LEVEL: logLevelSchema.optional(),
   OMIT_DEBUG_META_IN_RESPONSE: transformToBooleanSchema.optional(),
   NEXO_TRANSACTION_WATCHER_PORT: z.string().optional(),
-  INFURA_REQUEST_NETWORK: z.string().url(),
+  INFURA_REQUEST_NETWORK: z.string().url().optional(),
   INFURA_API_KEY: z.string(),
   INFURA_WSS_NETWORK: z.string(),
   MONGO_URL: z.string(),
