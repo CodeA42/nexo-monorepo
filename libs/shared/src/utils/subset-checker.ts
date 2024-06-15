@@ -25,6 +25,6 @@ export function subsetChecker(obj1: unknown, obj2: unknown) {
   return true;
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return (typeof value === 'object' && value !== null) || Array.isArray(value);
 }
