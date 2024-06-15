@@ -17,6 +17,9 @@
     "baseUrl": ".",
     "paths": {
       "@nexo-monorepo/api": ["libs/api/src/index.ts"],
+      "@nexo-monorepo/ethereum-api": ["libs/ethereum/api/src/index.ts"],
+      "@nexo-monorepo/ethereum-shared": ["libs/ethereum/shared/src/index.ts"],
+      "@nexo-monorepo/infura-shared": ["libs/infura/shared/src/index.ts"],
       "@nexo-monorepo/json-api-standard-api": [
         "libs/json-api-standard/api/src/index.ts"
       ],
@@ -26,10 +29,7 @@
       "@nexo-monorepo/nexo-transaction-watcher-api": [
         "libs/nexo/transaction-watcher/api/src/index.ts"
       ],
-      "@nexo-monorepo/shared": ["libs/shared/src/index.ts"],
-      "@nexo-monorepo/infura-shared": ["libs/infura/shared/src/index.ts"],
-      "@nexo-monorepo/ethereum-shared": ["libs/ethereum/shared/src/index.ts"],
-      "@nexo-monorepo/ethereum-api": ["libs/ethereum/api/src/index.ts"]
+      "@nexo-monorepo/shared": ["libs/shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
