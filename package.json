@@ -7,7 +7,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "npx nx run-many --parallel --target=serve --skip-nx-cache --configuration=development --projects=transaction-watcher",
+    "start": "npx nx run transaction-watcher:serve --skip-nx-cache",
     "test": "npx nx run transaction-watcher:test:integration --skip-nx-cache"
   },
   "dependencies": {

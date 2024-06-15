@@ -33,6 +33,7 @@ export class TransactionFilterService {
 
   async getFilters(): Promise<TransactionBigIntAsStringType[]> {
     const filterEntities = await this.transactionFilterRepository.find();
+
     const filters = filterEntities.map((filter) => {
       const result = transactionBigIntAsStringSchema.safeParse(filter);
       if (result.success) return result.data;

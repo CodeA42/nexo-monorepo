@@ -32,6 +32,7 @@ export class WithdrawalFilterService {
 
   async getFilters(): Promise<WithdrawalBigIntAsStringType[]> {
     const filterEntities = await this.withdrawalFilterRepository.find();
+
     const filters = filterEntities.map((filter) => {
       const result = withdrawalBigIntAsStringSchema.safeParse(filter);
       if (result.success) return result.data;

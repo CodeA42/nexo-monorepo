@@ -10,8 +10,8 @@ import {
   WithdrawalBigIntAsStringType,
   WithdrawalBigIntToStringType,
   blockHeadersBigIntToStringSchema,
-  transactionBigIntToStringSchema,
-  withdrawalBigIntToStringSchema,
+  transactionBigIntAsStringSchema,
+  withdrawalBigIntAsStringSchema,
 } from '@nexo-monorepo/ethereum-shared';
 import { subsetChecker } from '@nexo-monorepo/shared';
 import { TransactionFilterService } from '../transaction/transaction.service';
@@ -56,6 +56,7 @@ export class WatcherService implements OnModuleInit {
       if (error) throw error;
     });
 
+    this.logger.log(`Listening for data on ${this.INFURA_WSS_NETWORK}{API-KEY}`);
     subscription.on('data', async (blockHeader) => {
       const block: BlockHeaders = await this.web3.eth.getBlock(blockHeader.hash, true);
       if (block) {
@@ -74,24 +75,25 @@ export class WatcherService implements OnModuleInit {
 
   async findAndSaveTransactionIntersections(transactions?: TransactionBigIntToStringType[] | string[]): Promise<void> {
     if (!transactions) return; // Will be removed when a definitive type for transactions is written
-    const parsedTransactions = transactionBigIntToStringSchema.array().safeParse(transactions); // the string[] case will not be handleded for now
+
+    const parsedTransactions = transactionBigIntAsStringSchema.array().safeParse(transactions); // the string[] case will not be handleded for now
 
     if (!parsedTransactions.data) return;
 
     const filters = await this.transactionFilterService.getFilters();
 
     parsedTransactions.data.forEach(async (transaction) => {
-      const subsets = await this.findTransactionFilterSubsets(transaction, filters);
+      const subsets = this.findTransactionFilterSubsets(transaction, filters);
 
-      const saved = await this.transactionRepository.save({ ...transaction, filters: subsets });
+      const saved = await this.transactionRepository.save({ ...transaction, transactionFilters: subsets });
       this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
     });
   }
 
-  async findTransactionFilterSubsets(
+  findTransactionFilterSubsets(
     block: TransactionBigIntToStringType,
     filters: TransactionBigIntAsStringType[],
-  ): Promise<TransactionBigIntAsStringType[]> {
+  ): TransactionBigIntAsStringType[] {
     const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
 
     return subsetFilters;
@@ -99,24 +101,24 @@ export class WatcherService implements OnModuleInit {
 
   async findAndSaveWithdrawalIntersections(withdrawals?: WithdrawalBigIntToStringType[] | string[]): Promise<void> {
     if (!withdrawals) return; // Will be removed when a definitive type for transactions is written
-    const parsedWithdrawals = withdrawalBigIntToStringSchema.array().safeParse(withdrawals); // the string[] case will not be handleded for now
+    const parsedWithdrawals = withdrawalBigIntAsStringSchema.array().safeParse(withdrawals); // the string[] case will not be handleded for now
 
     if (!parsedWithdrawals.data) return;
 
     const filters = await this.withdrawalFilterService.getFilters();
 
     parsedWithdrawals.data.forEach(async (withdrawal) => {
-      const subsets = await this.findWithdrawalFilterSubsets(withdrawal, filters);
+      const subsets = this.findWithdrawalFilterSubsets(withdrawal, filters);
 
-      const saved = await this.withdrawalRepository.save({ ...withdrawal, filters: subsets });
-      this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
+      const saved = await this.withdrawalRepository.save({ ...withdrawal, withdrawalFilters: subsets });
+      this.logger.log(`New withdrawal (${saved.id}) matches (${subsets.length}) filters`);
     });
   }
 
-  async findWithdrawalFilterSubsets(
+  findWithdrawalFilterSubsets(
     block: WithdrawalBigIntToStringType,
     filters: WithdrawalBigIntAsStringType[],
-  ): Promise<WithdrawalBigIntAsStringType[]> {
+  ): WithdrawalBigIntAsStringType[] {
     const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
 
     return subsetFilters;

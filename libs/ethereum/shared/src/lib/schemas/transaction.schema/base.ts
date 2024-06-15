@@ -7,7 +7,9 @@ export const baseSchema = z.object({
   data: z.string(),
   input: z.string(),
   chain: z.number(),
-  to: z.string(),
+  to: z
+    .union([z.string(), z.null()])
+    .transform((value) => (value === null ? '' : value)),
   networkId: z.number(),
   yParity: z.number(),
   r: z.string(),
