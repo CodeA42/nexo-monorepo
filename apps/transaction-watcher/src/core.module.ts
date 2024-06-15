@@ -28,7 +28,7 @@ export function createCoreModule(getEnv: () => unknown) {
         useFactory: (configService: ConfigService<NexoTransactionWatcherConfiguration>) => ({
           type: 'mongodb',
           url: configService.get('MONGO_URL'),
-          entities: ['apps/transaction-watcher/src/**/*.entity.ts'],
+          autoLoadEntities: true,
         }),
       }),
     ],
