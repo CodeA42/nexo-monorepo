@@ -6,13 +6,10 @@ export function subsetChecker(obj1: unknown, obj2: unknown) {
     return true;
   }
 
-  // Check if both objects are objects and not null.
-  if (
-    typeof obj1 !== 'object' ||
-    typeof obj2 !== 'object' ||
-    obj1 === null ||
-    obj2 === null
-  ) {
+  if (!isRecord(obj1)) {
+    return false;
+  }
+  if (!isRecord(obj2)) {
     return false;
   }
   // Get the keys of both objects.
@@ -26,4 +23,8 @@ export function subsetChecker(obj1: unknown, obj2: unknown) {
   }
   // If all checks pass, the objects are deep equal.
   return true;
+}
+
+function isRecord(value: unknown): value is Record<string, any> {
+  return (typeof value === 'object' && value !== null) || Array.isArray(value);
 }
