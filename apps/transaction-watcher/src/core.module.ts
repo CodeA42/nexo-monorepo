@@ -10,6 +10,8 @@ import {
 import { ZodValidationExceptionFilter } from '@nexo-monorepo/json-api-standard-api';
 import { WatcherModule } from './watcher/watcher.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TransactionModule } from './transaction/transaction.module';
+import { WithdrawalModule } from './withdrawal/withdrawal.module';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createCoreModule(getEnv: () => unknown) {
@@ -22,6 +24,8 @@ export function createCoreModule(getEnv: () => unknown) {
       }),
       HttpModule,
       WatcherModule,
+      TransactionModule,
+      WithdrawalModule,
       TypeOrmModule.forRootAsync({
         inject: [ConfigService],
         imports: [ConfigModule],

@@ -1,9 +1,10 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn } from 'typeorm';
-import { CommonEntity } from './common.entity';
+import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn, ManyToMany } from 'typeorm';
 import { AccessListEntity } from './access-list.entity';
+import { CommonEntity } from './common.entity';
+import { TransactionEntity } from './transaction.entity';
 
 @Entity()
-export class TransactionEntity {
+export class TransactionFilterEntity {
   @ObjectIdColumn()
   id: ObjectId;
 
@@ -109,4 +110,7 @@ export class TransactionEntity {
 
   @Column()
   s: string;
+
+  @ManyToMany(() => TransactionEntity, (transactionEntity) => transactionEntity.transactionFilters)
+  transactions: TransactionEntity[];
 }

@@ -1,22 +1,23 @@
-import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NexoTransactionWatcherConfiguration } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
 import {
   BlockHeaders,
-  BlockHeadersBigIntAsStringType,
-  BlockHeadersBigIntToStringType,
-  blockHeadersBigIntAsStringSchema,
+  TransactionBigIntAsStringType,
+  TransactionBigIntToStringType,
+  WithdrawalBigIntAsStringType,
+  WithdrawalBigIntToStringType,
   blockHeadersBigIntToStringSchema,
+  transactionBigIntToStringSchema,
+  withdrawalBigIntToStringSchema,
 } from '@nexo-monorepo/ethereum-shared';
-import { BlockHeadersBigIntAsStringDto } from '@nexo-monorepo/ethereum-api';
-import { IdDto } from '@nexo-monorepo/api';
-import { isEmptyObject, subsetChecker } from '@nexo-monorepo/shared';
-import { BlockHeaderRepository } from './repositories/block-header.repository';
-import { FilterRepository } from './repositories/filter.repository';
-import { FilterEntity } from './entities/filter.entity';
-import { ObjectId } from 'mongodb';
+import { subsetChecker } from '@nexo-monorepo/shared';
+import { TransactionFilterService } from '../transaction/transaction.service';
+import { WithdrawalFilterService } from '../withdrawal/withdrawal.service';
+import { TransactionRepository } from '../transaction/transaction.repository';
+import { WithdrawalRepository } from '../withdrawal/withdrawal.repository';
 
 @Injectable()
 export class WatcherService implements OnModuleInit {
@@ -30,8 +31,10 @@ export class WatcherService implements OnModuleInit {
 
   constructor(
     private readonly configService: ConfigService<NexoTransactionWatcherConfiguration>,
-    private readonly blockHeaderRepository: BlockHeaderRepository,
-    private readonly filterRepository: FilterRepository,
+    private readonly transactionFilterService: TransactionFilterService,
+    private readonly withdrawalFilterService: WithdrawalFilterService,
+    private readonly transactionRepository: TransactionRepository,
+    private readonly withdrawalRepository: WithdrawalRepository,
   ) {}
 
   onModuleInit() {
@@ -57,10 +60,10 @@ export class WatcherService implements OnModuleInit {
       const block: BlockHeaders = await this.web3.eth.getBlock(blockHeader.hash, true);
       if (block) {
         const result = blockHeadersBigIntToStringSchema.safeParse(block);
+
         if (result.success) {
-          const subsets = await this.findSubsets(result.data);
-          const saved = await this.blockHeaderRepository.save({ ...result.data, filters: subsets });
-          this.logger.log(`New block (${saved.id}) matches (${subsets.length})`);
+          this.findAndSaveTransactionIntersections(result.data.transactions);
+          this.findAndSaveWithdrawalIntersections(result.data.withdrawals);
         } else {
           //If reach this we have our alidation schema setup incorrectly. It needs to be readjusted
           this.logger.error(`Error saving into database, issue with validation schema: ${result.error.message}`);
@@ -69,39 +72,53 @@ export class WatcherService implements OnModuleInit {
     });
   }
 
-  async findSubsets(block: BlockHeadersBigIntToStringType): Promise<BlockHeadersBigIntAsStringType[]> {
-    const filters = await this.getFilters();
+  async findAndSaveTransactionIntersections(transactions?: TransactionBigIntToStringType[] | string[]): Promise<void> {
+    if (!transactions) return; // Will be removed when a definitive type for transactions is written
+    const parsedTransactions = transactionBigIntToStringSchema.array().safeParse(transactions); // the string[] case will not be handleded for now
 
+    if (!parsedTransactions.data) return;
+
+    const filters = await this.transactionFilterService.getFilters();
+
+    parsedTransactions.data.forEach(async (transaction) => {
+      const subsets = await this.findTransactionFilterSubsets(transaction, filters);
+
+      const saved = await this.transactionRepository.save({ ...transaction, filters: subsets });
+      this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
+    });
+  }
+
+  async findTransactionFilterSubsets(
+    block: TransactionBigIntToStringType,
+    filters: TransactionBigIntAsStringType[],
+  ): Promise<TransactionBigIntAsStringType[]> {
     const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
 
     return subsetFilters;
   }
 
-  async newFilter(newFilter: BlockHeadersBigIntAsStringDto): Promise<FilterEntity> {
-    if (isEmptyObject(newFilter)) {
-      //This is just for the demo, since the validation is not fully implemented
-      //we just make sure that the objects that are being sent are not empty,
-      //when the validation is complete an empty object will not pass the validation
-      //courtesy of "No time till deadline, its Friday and we drink in 1 hour Inc."
-      throw new BadRequestException('Filter is empty');
-    }
+  async findAndSaveWithdrawalIntersections(withdrawals?: WithdrawalBigIntToStringType[] | string[]): Promise<void> {
+    if (!withdrawals) return; // Will be removed when a definitive type for transactions is written
+    const parsedWithdrawals = withdrawalBigIntToStringSchema.array().safeParse(withdrawals); // the string[] case will not be handleded for now
 
-    return await this.filterRepository.save(newFilter);
-  }
+    if (!parsedWithdrawals.data) return;
 
-  async deleteFilter(id: IdDto['id']): Promise<void> {
-    await this.filterRepository.findOne({ where: { id: new ObjectId(id) } });
-  }
+    const filters = await this.withdrawalFilterService.getFilters();
 
-  async getFilters(): Promise<BlockHeadersBigIntAsStringType[]> {
-    const filterEntities = await this.filterRepository.find();
-    const filters = filterEntities.map((filter) => {
-      const result = blockHeadersBigIntAsStringSchema.safeParse(filter);
-      if (result.success) return result.data;
-      this.logger.error(`DB inconsistency at: (${filter.id})`);
-      return undefined;
+    parsedWithdrawals.data.forEach(async (withdrawal) => {
+      const subsets = await this.findWithdrawalFilterSubsets(withdrawal, filters);
+
+      const saved = await this.withdrawalRepository.save({ ...withdrawal, filters: subsets });
+      this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
     });
+  }
 
-    return filters.filter((filter) => !!filter) as BlockHeadersBigIntAsStringType[];
+  async findWithdrawalFilterSubsets(
+    block: WithdrawalBigIntToStringType,
+    filters: WithdrawalBigIntAsStringType[],
+  ): Promise<WithdrawalBigIntAsStringType[]> {
+    const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
+
+    return subsetFilters;
   }
 }
