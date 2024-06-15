@@ -3,10 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { NexoTransactionWatcherConfiguration } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
-import { BlockHeaders, blockHeadersSimplifiedSaveSchema } from '@nexo-monorepo/ethereum-shared';
+import {
+  BlockHeaders,
+  BlockHeadersSimplifiedSaveType,
+  blockHeadersSimplifiedSaveSchema,
+} from '@nexo-monorepo/ethereum-shared';
 import { BlockHeadersSimplifiedSaveDto } from '@nexo-monorepo/ethereum-api';
 import { IdDto } from '@nexo-monorepo/api';
-import { isEmptyObject } from '@nexo-monorepo/shared';
+import { isEmptyObject, subsetChecker } from '@nexo-monorepo/shared';
 import { BlockHeaderRepository } from './repositories/block-header.repository';
 import { FilterRepository } from './repositories/filter.repository';
 import { FilterEntity } from './entities/filter.entity';
@@ -52,14 +56,23 @@ export class WatcherService implements OnModuleInit {
       if (block) {
         const result = blockHeadersSimplifiedSaveSchema.safeParse(block);
         if (result.success) {
-          const saved = await this.blockHeaderRepository.save(result.data);
-          this.logger.log(`New block, ${saved.id}`);
+          const subsets = await this.findSubsets(result.data);
+          const saved = await this.blockHeaderRepository.save({ ...result.data, filters: subsets });
+          this.logger.log(`New block (${saved.id}) matches (${subsets.length})`);
         } else {
           //If reach this we have our alidation schema setup incorrectly. It needs to be readjusted
           this.logger.error(`Error saving into database, issue with validation schema: ${result.error.message}`);
         }
       }
     });
+  }
+
+  async findSubsets(block: BlockHeadersSimplifiedSaveType): Promise<BlockHeadersSimplifiedSaveType[]> {
+    const filters = await this.getFilters();
+
+    const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
+
+    return subsetFilters;
   }
 
   async newFilter(newFilter: BlockHeadersSimplifiedSaveDto): Promise<FilterEntity> {
@@ -78,7 +91,15 @@ export class WatcherService implements OnModuleInit {
     await this.filterRepository.findOne({ where: { id: new ObjectId(id) } });
   }
 
-  async getFilters(): Promise<FilterEntity[]> {
-    return this.filterRepository.find();
+  async getFilters(): Promise<BlockHeadersSimplifiedSaveType[]> {
+    const filterEntities = await this.filterRepository.find();
+    const filters = filterEntities.map((filter) => {
+      const result = blockHeadersSimplifiedSaveSchema.safeParse(filter);
+      if (result.success) return result.data;
+      this.logger.error(`DB inconsistency at: (${filter.id})`);
+      return undefined;
+    });
+
+    return filters.filter((filter) => !!filter) as BlockHeadersSimplifiedSaveType[];
   }
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, OneToMany } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId, ManyToMany } from 'typeorm';
 import { WithdrawalEntity } from './withdrawal.entity';
 import { TransactionEntity } from './transaction.entity';
 import { Validate } from 'class-validator';
@@ -107,6 +107,6 @@ export class FilterEntity {
   @Column()
   withdrawalsRoot: string;
 
-  @OneToMany(() => BlockHeaderEntity, (blockHeader) => blockHeader.filter)
+  @ManyToMany(() => BlockHeaderEntity, (blockHeader) => blockHeader.filters)
   blockHeaders: BlockHeaderEntity[];
 }
