@@ -4,7 +4,3 @@ test:
 	npx nx run-many --target=test
 db:
 	docker compose up -d
-start:
-	docker compose up -d
-migration:
-	npx nx migration:run transaction-watcher
