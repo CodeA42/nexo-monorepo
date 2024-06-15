@@ -9,7 +9,7 @@ import {
 } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import { ZodValidationExceptionFilter } from '@nexo-monorepo/json-api-standard-api';
 import { WatcherModule } from './watcher/watcher.module';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createCoreModule(getEnv: () => unknown) {
@@ -22,11 +22,14 @@ export function createCoreModule(getEnv: () => unknown) {
       }),
       HttpModule,
       WatcherModule,
-      MongooseModule.forRootAsync({
+      TypeOrmModule.forRootAsync({
         inject: [ConfigService],
         imports: [ConfigModule],
         useFactory: (configService: ConfigService<NexoTransactionWatcherConfiguration>) => ({
-          uri: configService.get('MONGOOSE_URL'),
+          type: 'mongodb',
+          synchronize: true,
+          url: configService.get('MONGO_URL'),
+          entities: ['apps/transaction-watcher/src/**/*.entity.ts'],
         }),
       }),
     ],

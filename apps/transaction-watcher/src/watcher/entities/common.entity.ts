@@ -1,19 +1,23 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CustomChain, CustomChainSchema } from './custom-chain.schema';
+import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn } from 'typeorm';
+import { CustomChainEntity } from './custom-chain.entity';
 
-@Schema()
-export class Common {
-  @Prop({
-    type: CustomChainSchema,
-  })
-  customChain: CustomChain;
+@Entity()
+export class CommonEntity {
+  @ObjectIdColumn()
+  id: ObjectId;
 
-  @Prop({
+  @OneToOne(() => CustomChainEntity, { cascade: true })
+  @JoinColumn()
+  customChain: CustomChainEntity;
+
+  @Column({
+    type: 'enum',
     enum: ['goerli', 'kovan', 'mainnet', 'rinkeby', 'ropsten', 'sepolia'],
   })
   baseChain: string;
 
-  @Prop({
+  @Column({
+    type: 'enum',
     enum: [
       'chainstart',
       'frontier',
@@ -39,5 +43,3 @@ export class Common {
   })
   hardfork: string;
 }
-
-export const CommonSchema = SchemaFactory.createForClass(Common);

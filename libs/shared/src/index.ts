@@ -6,3 +6,4 @@ export * from './schemas/id.schema';
 export * from './utils/is-empty-object';
 export * from './utils/string-to-big-int';
 export * from './schemas/big-int-from-string.schema';
+export * from './utils/is-string-array';

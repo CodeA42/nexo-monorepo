@@ -16,7 +16,7 @@ const nexoTransactionWatcherConfigurationSchema = z.object({
   INFURA_REQUEST_NETWORK: z.string().url(),
   INFURA_API_KEY: z.string(),
   INFURA_WSS_NETWORK: z.string(),
-  MONGOOSE_URL: z.string(),
+  MONGO_URL: z.string(),
 });
 
 export type NexoTransactionWatcherConfiguration = z.infer<

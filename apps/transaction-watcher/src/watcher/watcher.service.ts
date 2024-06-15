@@ -1,18 +1,16 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NexoTransactionWatcherConfiguration } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
-import { BlockHeaders } from '@nexo-monorepo/ethereum-shared';
-import { InjectModel } from '@nestjs/mongoose';
-import { BlockHeader } from './schemas/block-header.schema';
-import { Model } from 'mongoose';
+import { BlockHeaders, blockHeadersSimplifiedSchema } from '@nexo-monorepo/ethereum-shared';
 import { BlockHeadersSimplifiedDto } from '@nexo-monorepo/ethereum-api';
-import { Filter } from './schemas/last-filter.schema';
-import { MongooseSaved } from '../util/mongoose-saved';
-import { isMongooseCastError } from '../util/is-mongoose-cast-error';
 import { IdDto } from '@nexo-monorepo/api';
 import { isEmptyObject } from '@nexo-monorepo/shared';
+import { BlockHeaderRepository } from './repositories/block-header.repository';
+import { FilterRepository } from './repositories/filter.repository';
+import { FilterEntity } from './entities/filter.entity';
+import { ObjectId } from 'typeorm';
 
 @Injectable()
 export class WatcherService implements OnModuleInit {
@@ -22,10 +20,12 @@ export class WatcherService implements OnModuleInit {
   private INFURA_WSS_URL: string;
 
   private web3: Web3<RegisteredSubscription>;
+  private readonly logger = new Logger(WatcherService.name);
+
   constructor(
     private readonly configService: ConfigService<NexoTransactionWatcherConfiguration>,
-    @InjectModel(BlockHeader.name) private readonly blockHeaderModel: Model<BlockHeader>,
-    @InjectModel(Filter.name) private readonly filterModel: Model<Filter>,
+    private readonly blockHeaderRepository: BlockHeaderRepository,
+    private readonly filterRepository: FilterRepository,
   ) {}
 
   onModuleInit() {
@@ -50,13 +50,19 @@ export class WatcherService implements OnModuleInit {
     subscription.on('data', async (blockHeader) => {
       const block: BlockHeaders = await this.web3.eth.getBlock(blockHeader.hash, true);
       if (block) {
-        const newBlockHeader = new this.blockHeaderModel(block);
-        console.log(newBlockHeader.save());
+        const result = blockHeadersSimplifiedSchema.safeParse(block);
+        if (result.success) {
+          const saved = await this.blockHeaderRepository.save(result.data);
+          this.logger.log(`New block, ${saved.id}`);
+        } else {
+          //If reach this we have our alidation schema setup incorrectly. It needs to be readjusted
+          this.logger.error(`Error saving into database, issue with validation schema: ${result.error.message}`);
+        }
       }
     });
   }
 
-  async newFilter(newFilter: BlockHeadersSimplifiedDto): Promise<string> {
+  async newFilter(newFilter: BlockHeadersSimplifiedDto): Promise<FilterEntity> {
     if (isEmptyObject(newFilter)) {
       //This is just for the demo, since the validation is not fully implemented
       //we just make sure that the objects that are being sent are not empty,
@@ -65,22 +71,14 @@ export class WatcherService implements OnModuleInit {
       throw new BadRequestException('Filter is empty');
     }
 
-    const newBlockHeaderFilter = new this.filterModel(newFilter);
-    const saved: MongooseSaved<Filter> = await newBlockHeaderFilter.save();
-
-    const id = saved._id.toString();
-    return id;
+    return await this.filterRepository.save(newFilter);
   }
 
   async deleteFilter(id: IdDto['id']): Promise<void> {
-    try {
-      await this.filterModel.findByIdAndDelete(id);
-    } catch (error: unknown) {
-      if (isMongooseCastError(error)) {
-        throw new BadRequestException('Id in improper format'); //Again no validation, this will not happen when validation is fully implemented
-      }
+    await this.filterRepository.findOne({ where: { id: new ObjectId(id) } });
+  }
 
-      throw error;
-    }
+  async getFilters(): Promise<FilterEntity[]> {
+    return this.filterRepository.find();
   }
 }

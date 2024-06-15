@@ -1,64 +1,69 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Common, CommonSchema } from './common.schema';
-import { AccessList, AccessListSchema } from './access-list.schema';
+import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn } from 'typeorm';
+import { CommonEntity } from './common.entity';
+import { AccessListEntity } from './access-list.entity';
 
-@Schema()
-export class Transaction {
-  @Prop()
+@Entity()
+export class TransactionEntity {
+  @ObjectIdColumn()
+  id: ObjectId;
+
+  @Column()
   blockHash: string;
 
-  @Prop()
+  @Column('bigint')
   blockNumber: bigint;
 
-  @Prop()
+  @Column()
   from: string;
 
-  @Prop()
+  @Column()
   hash: string;
 
-  @Prop()
+  @Column()
   transactionIndex: string;
 
-  @Prop()
+  @Column()
   to: string;
 
-  @Prop()
+  @Column('bigint')
   value: bigint;
 
-  @Prop({ type: [{ type: AccessListSchema }] })
-  accessList: AccessList[];
+  @Column(() => AccessListEntity)
+  accessList: AccessListEntity[];
 
-  @Prop({ type: CommonSchema })
-  common: Common;
+  @OneToOne(() => CommonEntity, { cascade: true })
+  @JoinColumn()
+  common: CommonEntity;
 
-  @Prop()
+  @Column('bigint')
   gas: bigint;
 
-  @Prop()
+  @Column('bigint')
   gasPrice: bigint;
 
-  @Prop()
+  @Column('bigint')
   type: bigint;
 
-  @Prop()
+  @Column('bigint')
   maxFeePerGas: bigint;
 
-  @Prop()
+  @Column('bigint')
   maxPriorityFeePerGas: bigint;
 
-  @Prop()
+  @Column()
   data: string;
 
-  @Prop()
+  @Column()
   input: string;
 
-  @Prop()
+  @Column('bigint')
   nonce: bigint;
 
-  @Prop()
+  @Column('int')
   chain: number;
 
-  @Prop({
+  @Column({
+    type: 'enum',
     enum: [
       'chainstart',
       'frontier',
@@ -84,26 +89,24 @@ export class Transaction {
   })
   hardfork: string;
 
-  @Prop()
+  @Column('bigint')
   chainId: bigint;
 
-  @Prop()
+  @Column('int')
   networkId: number;
 
-  @Prop()
+  @Column('bigint')
   gasLimit: bigint;
 
-  @Prop()
+  @Column('int')
   yParity: number;
 
-  @Prop()
+  @Column('bigint')
   v: bigint;
 
-  @Prop()
+  @Column()
   r: string;
 
-  @Prop()
+  @Column()
   s: string;
 }
-
-export const TransactionSchema = SchemaFactory.createForClass(Transaction);

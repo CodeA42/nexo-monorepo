@@ -4,6 +4,7 @@ import { BlockHeadersSimplifiedDto } from '@nexo-monorepo/ethereum-api';
 import { WatcherService } from './watcher.service';
 import { IdDto } from '@nexo-monorepo/api';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { FilterEntity } from './entities/filter.entity';
 
 @ApiTags('Watcher')
 @Controller('watcher')
@@ -15,7 +16,7 @@ export class WatcherController {
   @Post('/filter')
   @ApiOperation({ summary: 'Returns the created filter' })
   @ApiResponse({ status: 201 })
-  async newFilter(@Body() newFilter: BlockHeadersSimplifiedDto): Promise<string> {
+  async newFilter(@Body() newFilter: BlockHeadersSimplifiedDto): Promise<FilterEntity> {
     return await this.watcherService.newFilter(newFilter);
   }
 
