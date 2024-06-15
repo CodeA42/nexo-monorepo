@@ -11,8 +11,6 @@ const nexoTransactionWatcherConfigurationSchema = z.object({
   DD_LOG_LEVEL: logLevelSchema.optional(),
   OMIT_DEBUG_META_IN_RESPONSE: transformToBooleanSchema.optional(),
   NEXO_TRANSACTION_WATCHER_PORT: z.string().optional(),
-  DATABASE_MIGRATION_RUN: transformToBooleanSchema.optional(),
-  DATABASE_LOGGING: z.array(z.string()).optional(),
   INFURA_REQUEST_NETWORK: z.string().url(),
   INFURA_API_KEY: z.string(),
   INFURA_WSS_NETWORK: z.string(),
