@@ -4,7 +4,6 @@ export const baseSchema = z.object({
   blockHash: z.string(),
   from: z.string(),
   hash: z.string(),
-  transactionIndex: z.string(),
   data: z.string(),
   input: z.string(),
   chain: z.number(),

@@ -17,6 +17,7 @@ export const bigIntSchema = z.object({
   chainId: z.bigint(),
   gasLimit: z.bigint(),
   v: z.bigint(),
+  transactionIndex: z.bigint(),
 });
 
 export const bigIntFromStringSchema = z.object({
@@ -31,6 +32,7 @@ export const bigIntFromStringSchema = z.object({
   chainId: BigIntFromString,
   gasLimit: BigIntFromString,
   v: BigIntFromString,
+  transactionIndex: BigIntFromString,
 });
 
 export const bigIntAsStringSchema = z.object({
@@ -45,6 +47,7 @@ export const bigIntAsStringSchema = z.object({
   chainId: bigIntAsString,
   gasLimit: bigIntAsString,
   v: bigIntAsString,
+  transactionIndex: bigIntAsString,
 });
 
 export const bigIntToStringSchema = z.object({
@@ -59,4 +62,5 @@ export const bigIntToStringSchema = z.object({
   chainId: bigIntToString,
   gasLimit: bigIntToString,
   v: bigIntToString,
+  transactionIndex: bigIntToString,
 });
