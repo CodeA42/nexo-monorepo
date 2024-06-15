@@ -32,3 +32,14 @@ Integration tests do not require the application to be running. During testing t
 1. Type checking per projeect can be done with `npx nx run [project-name]:type-check` example `npx nx run transaction-watcher:type-check`
 2. The project formatter can be ran with `npx nx run m2m-nasa-bffe:format`
 3. For convenience there is a makefile with useful commands for instance `make push` which will run all relevan formatters and linters and is most useful right before pushing code.
+
+# Notes on known issues
+1. The project schemas are not finished and might occasionally break, had that been a full fledged project the schemas need to be finished.
+2. The debugger for the app broke so no breakpoints. No idea when that happenned. The test debugger works which is ever funnier.
+3. The db entities are having type issues as well.
+4. The logging is too much, each separate transaction is saved and logged with the relations it has.
+5. The filters are only checking for an exact match, no other options are available. Example: Greater than for numbers, partial string matchers and so on.
+6. The project is using mongodb due to my unkowing as to how often the emitted data from the ethereum network changes and implementing migrations in a good way might have slowed me down so no postgres. Which would have made the whole project run much better. And with less weird cases like `withdrawal.service.ts:33` (also this is not searching for filters it, is just getting them all).
+7. Each time we get a new block from the eth network we fetch all the filters from the database. Instead Redis can be added or a similart service to load the filters into it when the app starts to make the app a bit snappier.
+8. The tests are lackluster, there are no mocks of the event system so that arbitrary events can be passesd to test the overall system.
+9. The app itself is not in a docker container, so good luck on windows without wsl2
