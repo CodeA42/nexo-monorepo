@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 import { CustomChainEntity } from './custom-chain.entity';
 
 @Entity()
@@ -6,8 +6,7 @@ export class CommonEntity {
   @ObjectIdColumn()
   id: ObjectId;
 
-  @OneToOne(() => CustomChainEntity, { cascade: true })
-  @JoinColumn()
+  @Column(() => CustomChainEntity)
   customChain: CustomChainEntity;
 
   @Column({

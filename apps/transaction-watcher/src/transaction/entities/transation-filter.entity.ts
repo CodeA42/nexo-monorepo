@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, OneToOne, JoinColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId, ManyToMany } from 'typeorm';
 import { AccessListEntity } from './access-list.entity';
 import { CommonEntity } from './common.entity';
 import { TransactionEntity } from './transaction.entity';
@@ -32,8 +32,7 @@ export class TransactionFilterEntity {
   @Column(() => AccessListEntity)
   accessList: AccessListEntity[];
 
-  @OneToOne(() => CommonEntity, { cascade: true })
-  @JoinColumn()
+  @Column(() => CommonEntity)
   common: CommonEntity;
 
   @Column()
