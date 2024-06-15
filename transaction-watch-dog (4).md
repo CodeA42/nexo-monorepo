@@ -2,7 +2,7 @@
 The goal is to monitor the Ethereum blockchain and make the right decision based on a given rule set.
 
 ### Problem:
-Design a Ruling system that will monitor and watch all Ethereum transaction that will store and filter data based on predefined dynamic configuration.
+Design a Ruling system that will monitor and watch all Ethereum transactions that will store and filter data based on predefined dynamic configuration.
 * Create an API endpoint that will support basic CRUD operations for the Dynamic Configuration.
     * On restart the previous configuration should be used.
     * ***Bonus*** Hot load the new configuration without the need of restart.
