@@ -10,3 +10,4 @@ export * from './utils/is-string-array';
 export * from './schemas/string-from-big-int.schema';
 export * from './schemas/big-int-as-string.schema';
 export * from './utils/subset-checker';
+export * from './schemas/big-int-to-string.schema';

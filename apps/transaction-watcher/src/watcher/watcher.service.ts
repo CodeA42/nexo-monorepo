@@ -5,10 +5,12 @@ import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
 import {
   BlockHeaders,
-  BlockHeadersSimplifiedSaveType,
-  blockHeadersSimplifiedSaveSchema,
+  BlockHeadersBigIntAsStringType,
+  BlockHeadersBigIntToStringType,
+  blockHeadersBigIntAsStringSchema,
+  blockHeadersBigIntToStringSchema,
 } from '@nexo-monorepo/ethereum-shared';
-import { BlockHeadersSimplifiedSaveDto } from '@nexo-monorepo/ethereum-api';
+import { BlockHeadersBigIntAsStringDto } from '@nexo-monorepo/ethereum-api';
 import { IdDto } from '@nexo-monorepo/api';
 import { isEmptyObject, subsetChecker } from '@nexo-monorepo/shared';
 import { BlockHeaderRepository } from './repositories/block-header.repository';
@@ -54,7 +56,7 @@ export class WatcherService implements OnModuleInit {
     subscription.on('data', async (blockHeader) => {
       const block: BlockHeaders = await this.web3.eth.getBlock(blockHeader.hash, true);
       if (block) {
-        const result = blockHeadersSimplifiedSaveSchema.safeParse(block);
+        const result = blockHeadersBigIntToStringSchema.safeParse(block);
         if (result.success) {
           const subsets = await this.findSubsets(result.data);
           const saved = await this.blockHeaderRepository.save({ ...result.data, filters: subsets });
@@ -67,7 +69,7 @@ export class WatcherService implements OnModuleInit {
     });
   }
 
-  async findSubsets(block: BlockHeadersSimplifiedSaveType): Promise<BlockHeadersSimplifiedSaveType[]> {
+  async findSubsets(block: BlockHeadersBigIntToStringType): Promise<BlockHeadersBigIntAsStringType[]> {
     const filters = await this.getFilters();
 
     const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
@@ -75,7 +77,7 @@ export class WatcherService implements OnModuleInit {
     return subsetFilters;
   }
 
-  async newFilter(newFilter: BlockHeadersSimplifiedSaveDto): Promise<FilterEntity> {
+  async newFilter(newFilter: BlockHeadersBigIntAsStringDto): Promise<FilterEntity> {
     if (isEmptyObject(newFilter)) {
       //This is just for the demo, since the validation is not fully implemented
       //we just make sure that the objects that are being sent are not empty,
@@ -91,15 +93,15 @@ export class WatcherService implements OnModuleInit {
     await this.filterRepository.findOne({ where: { id: new ObjectId(id) } });
   }
 
-  async getFilters(): Promise<BlockHeadersSimplifiedSaveType[]> {
+  async getFilters(): Promise<BlockHeadersBigIntAsStringType[]> {
     const filterEntities = await this.filterRepository.find();
     const filters = filterEntities.map((filter) => {
-      const result = blockHeadersSimplifiedSaveSchema.safeParse(filter);
+      const result = blockHeadersBigIntAsStringSchema.safeParse(filter);
       if (result.success) return result.data;
       this.logger.error(`DB inconsistency at: (${filter.id})`);
       return undefined;
     });
 
-    return filters.filter((filter) => !!filter) as BlockHeadersSimplifiedSaveType[];
+    return filters.filter((filter) => !!filter) as BlockHeadersBigIntAsStringType[];
   }
 }

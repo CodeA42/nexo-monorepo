@@ -1,6 +1,6 @@
 import { z } from 'nestjs-zod/z';
 
-export const binIntAsStringShema = z.string().refine(
+export const bigIntAsString = z.string().refine(
   (value) => {
     try {
       BigInt(value);
