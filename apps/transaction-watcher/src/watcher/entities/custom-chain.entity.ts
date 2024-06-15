@@ -8,9 +8,9 @@ export class CustomChainEntity {
   @Column()
   name: string;
 
-  @Column('bigint')
-  networkId: bigint;
+  @Column()
+  networkId: string;
 
-  @Column('bigint')
-  chainId: bigint;
+  @Column()
+  chainId: string;
 }

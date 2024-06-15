@@ -8,12 +8,12 @@ export class WithdrawalEntity {
   @Column()
   address: string;
 
-  @Column('bigint')
-  amount: bigint;
+  @Column()
+  amount: string;
 
-  @Column('bigint')
-  index: bigint;
+  @Column()
+  index: string;
 
-  @Column('bigint')
-  validatorIndex: bigint;
+  @Column()
+  validatorIndex: string;
 }

@@ -10,8 +10,8 @@ export class TransactionEntity {
   @Column()
   blockHash: string;
 
-  @Column('bigint')
-  blockNumber: bigint;
+  @Column()
+  blockNumber: string;
 
   @Column()
   from: string;
@@ -25,8 +25,8 @@ export class TransactionEntity {
   @Column()
   to: string;
 
-  @Column('bigint')
-  value: bigint;
+  @Column()
+  value: string;
 
   @Column(() => AccessListEntity)
   accessList: AccessListEntity[];
@@ -35,20 +35,20 @@ export class TransactionEntity {
   @JoinColumn()
   common: CommonEntity;
 
-  @Column('bigint')
-  gas: bigint;
+  @Column()
+  gas: string;
 
-  @Column('bigint')
-  gasPrice: bigint;
+  @Column()
+  gasPrice: string;
 
-  @Column('bigint')
-  type: bigint;
+  @Column()
+  type: string;
 
-  @Column('bigint')
-  maxFeePerGas: bigint;
+  @Column()
+  maxFeePerGas: string;
 
-  @Column('bigint')
-  maxPriorityFeePerGas: bigint;
+  @Column()
+  maxPriorityFeePerGas: string;
 
   @Column()
   data: string;
@@ -56,8 +56,8 @@ export class TransactionEntity {
   @Column()
   input: string;
 
-  @Column('bigint')
-  nonce: bigint;
+  @Column()
+  nonce: string;
 
   @Column('int')
   chain: number;
@@ -89,20 +89,20 @@ export class TransactionEntity {
   })
   hardfork: string;
 
-  @Column('bigint')
-  chainId: bigint;
+  @Column()
+  chainId: string;
 
   @Column('int')
   networkId: number;
 
-  @Column('bigint')
-  gasLimit: bigint;
+  @Column()
+  gasLimit: string;
 
   @Column('int')
   yParity: number;
 
-  @Column('bigint')
-  v: bigint;
+  @Column()
+  v: string;
 
   @Column()
   r: string;

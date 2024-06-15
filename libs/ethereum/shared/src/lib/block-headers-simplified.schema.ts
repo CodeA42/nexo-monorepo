@@ -1,4 +1,4 @@
-import { BigIntFromString } from '@nexo-monorepo/shared';
+import { BigIntFromString, binIntAsStringShema } from '@nexo-monorepo/shared';
 import { z } from 'nestjs-zod/z';
 
 export const validChainsSchema = z.union([
@@ -39,6 +39,23 @@ export const validHardForkSchema = z.union([
 
 export type ValidHardFork = z.infer<typeof validHardForkSchema>;
 
+const customChainSchema = z.object({
+  name: z.string().optional(),
+  networkId: BigIntFromString.optional(),
+  chainId: BigIntFromString.optional(),
+});
+
+const commonSchema = z.object({
+  customChain: customChainSchema,
+  baseChain: validChainsSchema.optional(),
+  hardfork: validHardForkSchema.optional(),
+});
+
+export const accessListSchema = z.object({
+  address: z.string().optional(),
+  storageKeys: z.string().array().optional(),
+});
+
 export const transactionSchema = z.object({
   blockHash: z.string().optional(),
   blockNumber: BigIntFromString.optional(),
@@ -47,24 +64,8 @@ export const transactionSchema = z.object({
   transactionIndex: z.string().optional(),
   to: z.string().optional(),
   value: BigIntFromString.optional(),
-  accessList: z
-    .object({
-      address: z.string().optional(),
-      storageKeys: z.string().array().optional(),
-    })
-    .array()
-    .optional(),
-  common: z
-    .object({
-      customChain: z.object({
-        name: z.string().optional(),
-        networkId: BigIntFromString,
-        chainId: BigIntFromString,
-      }),
-      baseChain: validChainsSchema.optional(),
-      hardfork: validHardForkSchema.optional(),
-    })
-    .optional(),
+  accessList: accessListSchema.array().optional(),
+  common: commonSchema.optional(),
   gas: BigIntFromString.optional(),
   gasPrice: BigIntFromString.optional(),
   type: BigIntFromString.optional(),
@@ -72,14 +73,14 @@ export const transactionSchema = z.object({
   maxPriorityFeePerGas: BigIntFromString.optional(),
   data: z.string().optional(),
   input: z.string().optional(),
-  nonce: BigIntFromString.optional(),
   chain: z.number().optional(),
   hardfork: validHardForkSchema.optional(),
+  nonce: BigIntFromString.optional(),
   chainId: BigIntFromString.optional(),
-  networkId: z.number().optional(),
   gasLimit: BigIntFromString.optional(),
-  yParity: z.number().optional(),
   v: BigIntFromString.optional(),
+  networkId: z.number().optional(),
+  yParity: z.number().optional(),
   r: z.string().optional(),
   s: z.string().optional(),
 });
@@ -128,4 +129,112 @@ export const blockHeadersSimplifiedSchema = z.object({
 
 export type BlockHeadersSimplifiedType = z.infer<
   typeof blockHeadersSimplifiedSchema
+>;
+
+const customChainSaveSchema = customChainSchema
+  .omit({
+    networkId: true,
+    chainId: true,
+  })
+  .merge(
+    z.object({
+      networkId: binIntAsStringShema.optional(),
+      chainId: binIntAsStringShema.optional(),
+    }),
+  );
+
+const commonSaveSchema = commonSchema
+  .omit({
+    customChain: true,
+  })
+  .merge(
+    z.object({
+      customChain: customChainSaveSchema,
+    }),
+  );
+
+export const transactionSaveSchema = transactionSchema
+  .omit({
+    blockNumber: true,
+    value: true,
+    gas: true,
+    gasPrice: true,
+    type: true,
+    maxFeePerGas: true,
+    maxPriorityFeePerGas: true,
+    nonce: true,
+    chainId: true,
+    gasLimit: true,
+    v: true,
+    common: true,
+  })
+  .merge(
+    z.object({
+      blockNumber: binIntAsStringShema.optional(),
+      value: binIntAsStringShema.optional(),
+      gas: binIntAsStringShema.optional(),
+      gasPrice: binIntAsStringShema.optional(),
+      type: binIntAsStringShema.optional(),
+      maxFeePerGas: binIntAsStringShema.optional(),
+      maxPriorityFeePerGas: binIntAsStringShema.optional(),
+      nonce: binIntAsStringShema.optional(),
+      chainId: binIntAsStringShema.optional(),
+      gasLimit: binIntAsStringShema.optional(),
+      v: binIntAsStringShema.optional(),
+      common: commonSaveSchema.optional(),
+    }),
+  );
+
+export const withdrawalSaveSchema = withdrawalSchema
+  .omit({
+    amount: true,
+    index: true,
+    validatorIndex: true,
+  })
+  .merge(
+    z.object({
+      amount: binIntAsStringShema.optional(),
+      index: binIntAsStringShema.optional(),
+      validatorIndex: binIntAsStringShema.optional(),
+    }),
+  );
+
+export const blockHeadersSimplifiedSaveSchema = blockHeadersSimplifiedSchema
+  .omit({
+    blobGasUsed: true,
+    excessBlobGas: true,
+    difficulty: true,
+    number: true,
+    gasLimit: true,
+    gasUsed: true,
+    timestamp: true,
+    nonce: true,
+    totalDifficulty: true,
+    baseFeePerGas: true,
+    size: true,
+    withdrawals: true,
+    transactions: true,
+  })
+  .merge(
+    z.object({
+      blobGasUsed: binIntAsStringShema.optional(),
+      excessBlobGas: binIntAsStringShema.optional(),
+      difficulty: binIntAsStringShema.optional(),
+      number: binIntAsStringShema.optional(),
+      gasLimit: binIntAsStringShema.optional(),
+      gasUsed: binIntAsStringShema.optional(),
+      timestamp: binIntAsStringShema.optional(),
+      nonce: binIntAsStringShema.optional(),
+      totalDifficulty: binIntAsStringShema.optional(),
+      baseFeePerGas: binIntAsStringShema.optional(),
+      size: binIntAsStringShema.optional(),
+      withdrawals: withdrawalSaveSchema.array().optional(),
+      transactions: z
+        .union([z.string().array(), transactionSaveSchema.array()])
+        .optional(),
+    }),
+  );
+
+export type BlockHeadersSimplifiedSaveType = z.infer<
+  typeof blockHeadersSimplifiedSaveSchema
 >;

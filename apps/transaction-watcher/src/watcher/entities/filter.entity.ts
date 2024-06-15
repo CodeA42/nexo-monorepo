@@ -13,11 +13,11 @@ export class FilterEntity {
   @Column()
   parentBeaconBlockRoot: string;
 
-  @Column('bigint')
-  blobGasUsed: bigint;
+  @Column()
+  blobGasUsed: string;
 
-  @Column('bigint')
-  excessBlobGas: bigint;
+  @Column()
+  excessBlobGas: string;
 
   @Column()
   parentHash: string;
@@ -40,20 +40,20 @@ export class FilterEntity {
   @Column()
   logsBloom: string;
 
-  @Column('bigint')
-  difficulty: bigint;
+  @Column()
+  difficulty: string;
 
-  @Column('bigint')
-  number: bigint;
+  @Column()
+  number: string;
 
-  @Column('bigint')
-  gasLimit: bigint;
+  @Column()
+  gasLimit: string;
 
-  @Column('bigint')
-  gasUsed: bigint;
+  @Column()
+  gasUsed: string;
 
-  @Column('bigint')
-  timestamp: bigint;
+  @Column()
+  timestamp: string;
 
   @Column()
   extraData: string;
@@ -61,17 +61,17 @@ export class FilterEntity {
   @Column()
   mixHash: string;
 
-  @Column('bigint')
-  nonce: bigint;
+  @Column()
+  nonce: string;
 
-  @Column('bigint')
-  totalDifficulty: bigint;
+  @Column()
+  totalDifficulty: string;
 
-  @Column('bigint')
-  baseFeePerGas: bigint;
+  @Column()
+  baseFeePerGas: string;
 
-  @Column('bigint')
-  size: bigint;
+  @Column()
+  size: string;
 
   @Validate(TransactionsValidator)
   @Column('simple-json', {

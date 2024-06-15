@@ -1,3 +1,4 @@
+import { FilterEntity } from '../../src/watcher/entities/filter.entity';
 import { SuperTestResponse, setupApp } from '../util/setupApp';
 
 describe('WatcherService', () => {
@@ -7,12 +8,17 @@ describe('WatcherService', () => {
         gasLimit: '1',
       };
 
-      const response = await app().post('/api/watcher/filter').send(data);
-      const { statusCode, text } = response;
+      const response: SuperTestResponse<FilterEntity> = await app().post('/api/watcher/filter').send(data);
+      const { statusCode, body } = response;
       expect(statusCode).toEqual(201);
-      expect(text).toBeString();
+      expect(body).toEqual(
+        expect.objectContaining({
+          gasLimit: '1',
+          id: expect.any(String),
+        }),
+      );
 
-      const deleteResult: SuperTestResponse<void> = await app().delete(`/api/watcher/filter?id=${text}`).send(data);
+      const deleteResult: SuperTestResponse<void> = await app().delete(`/api/watcher/filter?id=${body.id}`).send(data);
 
       expect(deleteResult.statusCode).toEqual(200);
     });

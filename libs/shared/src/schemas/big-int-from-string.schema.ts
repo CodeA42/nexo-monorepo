@@ -1,18 +1,5 @@
-import { z } from 'nestjs-zod/z';
+import { binIntAsStringShema } from './big-int-as-string.schema';
 
-export const BigIntFromString = z
-  .string()
-  .refine(
-    (value) => {
-      try {
-        BigInt(value);
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    {
-      message: 'Invalid BigInt representation',
-    },
-  )
-  .transform((value) => BigInt(value));
+export const BigIntFromString = binIntAsStringShema.transform((value) =>
+  BigInt(value),
+);

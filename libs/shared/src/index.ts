@@ -7,3 +7,5 @@ export * from './utils/is-empty-object';
 export * from './utils/string-to-big-int';
 export * from './schemas/big-int-from-string.schema';
 export * from './utils/is-string-array';
+export * from './schemas/string-from-big-int.schema';
+export * from './schemas/big-int-as-string.schema';

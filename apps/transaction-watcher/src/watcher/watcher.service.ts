@@ -3,14 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { NexoTransactionWatcherConfiguration } from '@nexo-monorepo/nexo-transaction-watcher-api';
 import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
-import { BlockHeaders, blockHeadersSimplifiedSchema } from '@nexo-monorepo/ethereum-shared';
-import { BlockHeadersSimplifiedDto } from '@nexo-monorepo/ethereum-api';
+import { BlockHeaders, blockHeadersSimplifiedSaveSchema } from '@nexo-monorepo/ethereum-shared';
+import { BlockHeadersSimplifiedSaveDto } from '@nexo-monorepo/ethereum-api';
 import { IdDto } from '@nexo-monorepo/api';
 import { isEmptyObject } from '@nexo-monorepo/shared';
 import { BlockHeaderRepository } from './repositories/block-header.repository';
 import { FilterRepository } from './repositories/filter.repository';
 import { FilterEntity } from './entities/filter.entity';
-import { ObjectId } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class WatcherService implements OnModuleInit {
@@ -50,7 +50,7 @@ export class WatcherService implements OnModuleInit {
     subscription.on('data', async (blockHeader) => {
       const block: BlockHeaders = await this.web3.eth.getBlock(blockHeader.hash, true);
       if (block) {
-        const result = blockHeadersSimplifiedSchema.safeParse(block);
+        const result = blockHeadersSimplifiedSaveSchema.safeParse(block);
         if (result.success) {
           const saved = await this.blockHeaderRepository.save(result.data);
           this.logger.log(`New block, ${saved.id}`);
@@ -62,7 +62,7 @@ export class WatcherService implements OnModuleInit {
     });
   }
 
-  async newFilter(newFilter: BlockHeadersSimplifiedDto): Promise<FilterEntity> {
+  async newFilter(newFilter: BlockHeadersSimplifiedSaveDto): Promise<FilterEntity> {
     if (isEmptyObject(newFilter)) {
       //This is just for the demo, since the validation is not fully implemented
       //we just make sure that the objects that are being sent are not empty,
