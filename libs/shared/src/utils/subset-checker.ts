@@ -28,3 +28,7 @@ export function subsetChecker(obj1: unknown, obj2: unknown) {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return (typeof value === 'object' && value !== null) || Array.isArray(value);
 }
+
+export function subsetCheckerMany<T>(obj1: unknown, obj2Many: T[]): T[] {
+  return obj2Many.filter((obj2) => subsetChecker(obj1, obj2));
+}

@@ -5,15 +5,13 @@ import Web3 from 'web3';
 import { RegisteredSubscription } from 'web3/lib/commonjs/eth.exports';
 import {
   BlockHeaders,
-  TransactionBigIntAsStringType,
   TransactionBigIntToStringType,
-  WithdrawalBigIntAsStringType,
   WithdrawalBigIntToStringType,
   blockHeadersBigIntToStringSchema,
   transactionBigIntAsStringSchema,
   withdrawalBigIntAsStringSchema,
 } from '@nexo-monorepo/ethereum-shared';
-import { subsetChecker } from '@nexo-monorepo/shared';
+import { subsetCheckerMany } from '@nexo-monorepo/shared';
 import { TransactionFilterService } from '../transaction/transaction.service';
 import { WithdrawalFilterService } from '../withdrawal/withdrawal.service';
 import { TransactionRepository } from '../transaction/transaction.repository';
@@ -83,20 +81,13 @@ export class WatcherService implements OnModuleInit {
     const filters = await this.transactionFilterService.getFilters();
 
     parsedTransactions.data.forEach(async (transaction) => {
-      const subsets = this.findTransactionFilterSubsets(transaction, filters);
+      const subsets = subsetCheckerMany(transaction, filters);
 
-      const saved = await this.transactionRepository.save({ ...transaction, transactionFilters: subsets });
-      this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
+      if (subsets.length !== 0) {
+        const saved = await this.transactionRepository.save({ ...transaction, transactionFilters: subsets });
+        this.logger.log(`New transaction (${saved.id}) matches (${subsets.length}) filters`);
+      }
     });
-  }
-
-  findTransactionFilterSubsets(
-    block: TransactionBigIntToStringType,
-    filters: TransactionBigIntAsStringType[],
-  ): TransactionBigIntAsStringType[] {
-    const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
-
-    return subsetFilters;
   }
 
   async findAndSaveWithdrawalIntersections(withdrawals?: WithdrawalBigIntToStringType[] | string[]): Promise<void> {
@@ -108,19 +99,12 @@ export class WatcherService implements OnModuleInit {
     const filters = await this.withdrawalFilterService.getFilters();
 
     parsedWithdrawals.data.forEach(async (withdrawal) => {
-      const subsets = this.findWithdrawalFilterSubsets(withdrawal, filters);
+      const subsets = subsetCheckerMany(withdrawal, filters);
 
-      const saved = await this.withdrawalRepository.save({ ...withdrawal, withdrawalFilters: subsets });
-      this.logger.log(`New withdrawal (${saved.id}) matches (${subsets.length}) filters`);
+      if (subsets.length !== 0) {
+        const saved = await this.withdrawalRepository.save({ ...withdrawal, withdrawalFilters: subsets });
+        this.logger.log(`New withdrawal (${saved.id}) matches (${subsets.length}) filters`);
+      }
     });
-  }
-
-  findWithdrawalFilterSubsets(
-    block: WithdrawalBigIntToStringType,
-    filters: WithdrawalBigIntAsStringType[],
-  ): WithdrawalBigIntAsStringType[] {
-    const subsetFilters = filters.filter((filter) => subsetChecker(block, filter));
-
-    return subsetFilters;
   }
 }
